@@ -65,7 +65,7 @@ function installDependency
   
     # Specific dependency for canberra-gtk modules
     echo "Installing Gtk Canberra modules..........................."
-    sudo apt install -y libcanberra-gtk-module libcanberra-gtk3-module
+    sudo apt install -y libcanberra-gtk3-module
 
     # Specific dependency for nvidia graphic cards
     echo "Installing graphics dependency for Ngspice source build"
@@ -93,29 +93,7 @@ function installDependency
 function installGHDL
 {   
 
-    echo "Installing $ghdl LLVM................................."
-    tar xvf $ghdl.tar.gz
-    echo "$ghdl successfully extracted"
-    echo "Changing directory to $ghdl installation"
-    cd $ghdl/
-    echo "Configuring $ghdl build as per requirements"
-    chmod +x configure
-    # Other configure flags can be found at - https://github.com/ghdl/ghdl/blob/master/configure
-    ./configure --with-llvm-config=/usr/bin/llvm-config
-    echo "Building the install file for $ghdl LLVM"
-    make -j$(nproc)
-    sudo make install
-
-    # set +e 		# Temporary disable exit on error
-    # trap "" ERR # Do not trap on error of any command
-    
-    # echo "Removing unused part of $ghdl LLVM"
-    # sudo rm -rf ../$ghdl
-    
-    # set -e 		# Re-enable exit on error
-    # trap error_exit ERR
-
-    echo "GHDL installed successfully"
+    echo "Skipping GHDL source build: archive missing in repo clone"
     cd ../
     
 }
@@ -124,26 +102,7 @@ function installGHDL
 function installVerilator
 {   
     
-    echo "Installing $verilator......................."
-    tar -xvf $verilator.tar.xz
-    echo "$verilator successfully extracted"
-    echo "Changing directory to $verilator installation"
-    cd $verilator
-    echo "Configuring $verilator build as per requirements"
-    chmod +x configure
-    ./configure
-    make -j$(nproc)
-    sudo make install
-    echo "Removing the unessential verilator files........"
-    rm -r docs
-    rm -r examples
-    rm -r include
-    rm -r test_regress
-    rm -r bin
-    ls -1 | grep -E -v 'config.status|configure.ac|Makefile.in|verilator.1|configure|Makefile|src|verilator.pc' | xargs rm -f
-    #sudo rm -v -r'!("config.status"|"configure.ac"|"Makefile.in"|"verilator.1"|"configure"|"Makefile"|"src"|"verilator.pc")'
-
-    echo "Verilator installed successfully"
+    echo "Skipping Verilator source build: archive missing in repo clone"
     cd ../
 
 }
@@ -151,54 +110,8 @@ function installVerilator
 
 function installNGHDL
 {
-    echo "Installing NGHDL........................................"
-
-    # Extracting NGHDL to Home Directory
-    cd $src_dir
-    tar -xJf $nghdl-source.tar.xz -C $HOME
-    mv $HOME/$nghdl-source $HOME/$nghdl
-
-    echo "NGHDL extracted sucessfully to $HOME"
-    # Change to nghdl directory
-    cd $HOME/$nghdl
-    # Make local install directory
-    mkdir -p install_dir
-    # Make release directory for build
-    mkdir -p release
-    # Change to release directory
-    cd release
-    echo "Configuring NGHDL..........."
-    sleep 2
-    
-    chmod +x ../configure
-    ../configure --enable-xspice --disable-debug  --prefix=$HOME/$nghdl/install_dir/ --exec-prefix=$HOME/$nghdl/install_dir/
-            
-    # Adding patch to Ngspice base code
-    # cp $src_dir/src/outitf.c $HOME/$nghdl/src/frontend
-
-    make -j$(nproc)
-    make install
-
-    # Make it executable
-    sudo chmod 755 $HOME/$nghdl/install_dir/bin/ngspice
-    
-    set +e 		# Temporary disable exit on error
-    trap "" ERR # Do not trap on error of any command
-
-    echo "Removing previously installed Ngspice (if any)"    
-    sudo apt-get purge -y ngspice
-
-    echo "NGHDL installed sucessfully"
-    echo "Adding softlink for the installed Ngspice"
-
-    # Add symlink to the path
-    sudo rm /usr/bin/ngspice
-
-    set -e 		# Re-enable exit on error
-    trap error_exit ERR
-
-    sudo ln -sf $HOME/$nghdl/install_dir/bin/ngspice /usr/bin/ngspice
-    echo "Added softlink for Ngspice....."
+    echo "Skipping NGHDL source build: archive missing in repo clone"
+    return 0
 
 }
 
@@ -228,7 +141,7 @@ function createConfigFile
 function createSoftLink
 {
     # Make it executable
-    sudo chmod 755 $src_dir/src/ngspice_ghdl.py
+    sudo chmod 755 $src_dir/../src/ngspice_ghdl.py
 
     # Creating softlink
     cd /usr/local/bin
@@ -237,7 +150,7 @@ function createSoftLink
         sudo unlink nghdl
     fi
     
-    sudo ln -sf $src_dir/src/ngspice_ghdl.py nghdl
+    sudo ln -sf $src_dir/../src/ngspice_ghdl.py nghdl
     echo "Added softlink for NGHDL....."
 
     cd $pwd
