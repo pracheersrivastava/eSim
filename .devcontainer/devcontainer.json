@@ -1,0 +1,8 @@
+{
+  "name": "Ubuntu 25.04 eSim",
+  "image": "ubuntu:25.04",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "remoteUser": "root"
+}
